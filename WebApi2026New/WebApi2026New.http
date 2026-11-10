@@ -1,0 +1,69 @@
+@host = https://localhost:7186
+
+### 1. Registro público: 200; repetirlo devuelve 409.
+POST {{host}}/api/Auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Ana",
+  "apellido": "Pérez",
+  "edad": 21,
+  "correo": "ana@upc.edu.co",
+  "password": "ClaveSegura2026*"
+}
+
+### 2. Login público: 200 con JWT (Ana ya está creada en la base de esta entrega).
+# @name login
+POST {{host}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "correo": "ana@upc.edu.co",
+  "password": "ClaveSegura2026*"
+}
+
+###
+@token = {{login.response.body.$.token}}
+
+### 3. Sin token: 401.
+GET {{host}}/api/Personas
+
+### 4. Con token: 200.
+GET {{host}}/api/Personas
+Authorization: Bearer {{token}}
+
+### 5. Identidad del token: 200.
+GET {{host}}/api/Auth/yo
+Authorization: Bearer {{token}}
+
+### 6. Direcciones sin token: 401.
+GET {{host}}/api/Direcciones
+
+### 7. Direcciones con token: 200.
+GET {{host}}/api/Direcciones
+Authorization: Bearer {{token}}
+
+### 8. Contraseña incorrecta: 401 y mensaje genérico.
+POST {{host}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "correo": "ana@upc.edu.co",
+  "password": "Incorrecta"
+}
+
+### 9. Registro inválido: 400.
+POST {{host}}/api/Auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Prueba",
+  "apellido": "Validación",
+  "edad": 21,
+  "correo": "correo-invalido",
+  "password": "corta"
+}
+
+### 10. Token manipulado: 401.
+GET {{host}}/api/Personas
+Authorization: Bearer {{token}}alterado
